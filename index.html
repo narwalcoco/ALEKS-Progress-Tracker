@@ -1,302 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZenScreen | Screensaver & More</title>
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='3'/><path d='M3 7V5a2 2 0 0 1 2-2h2'/><path d='M17 3h2a2 2 0 0 1 2 2v2'/><path d='M21 17v2a2 2 0 0 1-2 2h-2'/><path d='M7 21H5a2 2 0 0 1-2-2v-2'/></svg>">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Bangers&family=Caveat&family=Fredoka:wght@500&family=Pacifico&family=Righteous&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>ALEKS Tracker | Dark Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+        }
+
+        body { 
+            background-color: #0f172a; 
+            color: #f1f5f9;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated Particle Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .filter-btn {
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+        }
+
+        input:focus {
+            border-color: var(--accent) !important;
+            ring: 2px var(--accent-glow);
+        }
+
+        /* Webkit scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
 </head>
+<body class="p-4 md:p-10 flex flex-col items-center">
 
-<body>
-    <div id="custom-image-bg" class="hidden"></div>
+    <canvas id="bg-canvas"></canvas>
 
-    <div id="welcome-overlay" class="hidden">
-        <div class="welcome-box">
-            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-color); text-align: center;">🥳 Version
-                2.0 is Here! 🥳</h2>
-            <h3 style="text-align: left; opacity: 0.9;">New Features:</h3>
-            <ul class="welcome-features">
-                <li>🗒 Swapped Text/Message for Text Box Utility</li>
-                <li>📻 24/7 Lo-Fi Radio Player</li>
-                <li>🎵 Beat-Syncing Visualizer to Gradient Page</li>
-                <li>🖼️ Adding Images Utility</li>
-                <li>🌌 Custom Background Utility</li>
-                <li>💾 Save & Load Layout Manager Utility</li>
-            </ul>
-            <h3 style="text-align: left; opacity 0.9;">Check out the tutorial for how to use these new features!</h3>
-
-            <div style="display: flex; justify-content: center; width: 100%; margin-top: 1.5rem;">
-                <button id="welcome-yay-btn" class="primary-btn" style="font-size: 1.1rem; padding: 0.6rem 2.5rem; border-radius: 8px;">Yay!</button>
-            </div>
-        </div>
-    </div>
-
-    <nav id="navbar">
-        <div class="nav-left">
-            <h1 style="display: flex; align-items: center; gap: 0.5rem;">
-                <i data-lucide="focus" style="color: var(--accent-color);"></i> ZenScreen
-            </h1>
-            <button class="nav-btn" onclick="switchView('home')"><i data-lucide="home"></i> Home</button>
-            <button class="nav-btn" onclick="switchView('gradient')"><i data-lucide="palette"></i> Gradient</button>
-            <button class="nav-btn" onclick="switchView('nature')"><i data-lucide="leaf"></i> Nature</button>
-        </div>
-        <div class="nav-right">
-            <button class="nav-btn icon-btn" id="tutorial-btn"><i data-lucide="help-circle"></i></button>
-            <button class="nav-btn icon-btn" id="utilities-btn"><i data-lucide="settings-2"></i></button>
-        </div>
-    </nav>
-
-    <main>
-        <div id="home" class="view active">
-            <div class="home-content">
-                <h2 class="home-title">Your Focus Space</h2>
-                <p class="home-subtitle">A customizable, distraction-free environment to help you and your students stay
-                    on track.</p>
-
-                <div class="quick-nav">
-                    <button class="primary-btn" onclick="switchView('gradient')"><i data-lucide="palette"></i> Color
-                        Space</button>
-                    <button class="primary-btn" onclick="switchView('nature')"><i data-lucide="leaf"></i> Nature
-                        Space</button>
-                    <button class="secondary-btn" id="start-tutorial-btn"><i data-lucide="help-circle"></i> Interactive
-                        Tutorial</button>
+    <div class="glass-card p-6 w-full max-w-3xl mb-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
+        
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-600/20 rounded-lg">
+                    <i data-lucide="zap" class="text-blue-400"></i>
                 </div>
-
-                <div class="credits-box">
-                    <h3>About & Credits</h3>
-                    <p><strong>Creators:</strong> narwalcoco & Gemini</p>
-                    <p><strong>Tech Stack:</strong> Pure HTML, CSS, & Vanilla JavaScript (Web Audio API)</p>
-                    <p><strong>Media Sources:</strong> Nature videos courtesy of <a href="https://pixabay.com"
-                            target="_blank">Pixabay</a>. Bunny footage provided by <a href="https://www.w3schools.com/"
-                            target="_blank">W3Schools</a>.</p>
-                </div>
+                <h1 class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                    ALEKS Tracker
+                </h1>
             </div>
+            <span class="text-xs font-mono text-blue-400 bg-blue-400/10 px-2 py-1 rounded">V2.0 STABLE</span>
         </div>
-
-        <section id="gradient" class="view">
-        </section>
-
-        <section id="nature" class="view">
-            <video id="nature-video" autoplay loop muted playsinline>
-                <source src="videos/winter.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <div class="video-overlay"></div>
-        </section>
-    </main>
-
-    <aside id="utilities-panel">
-        <div class="panel-header">
-            <h3>Utilities</h3>
-            <button class="icon-btn" id="close-utilities"><i data-lucide="x"></i></button>
-        </div>
-
-        <div class="panel-section">
-            <h4><i data-lucide="clock"></i> Focus Timer</h4>
-            <div class="timer-inputs">
-                <input type="number" id="timer-mins" placeholder="Min" min="0">
-                <span style="color: var(--text-color);">:</span>
-                <input type="number" id="timer-secs" placeholder="Sec" min="0" max="59">
+        
+        <div class="flex flex-wrap gap-4 mb-8">
+            <div class="flex flex-col gap-1 flex-1 min-w-[150px]">
+                <label class="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Date</label>
+                <input type="date" id="dateInput" class="p-3 rounded-xl outline-none">
             </div>
-
-            <label
-                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; cursor: pointer;">
-                <input type="checkbox" id="timer-sound-toggle" checked>
-                Play gentle wind chimes when done
-            </label>
-
-            <button class="primary-btn" id="start-timer-btn" style="width: 100%;">Start Timer</button>
-        </div>
-
-        <div class="panel-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h4 style="margin: 0;"><i data-lucide="mic"></i> Noise Monitor</h4>
-                <label class="switch">
-                    <input type="checkbox" id="noise-toggle">
-                    <span class="slider"></span>
-                </label>
+            <div class="flex flex-col gap-1 w-32">
+                <label class="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Minutes</label>
+                <input type="number" id="timeInput" placeholder="0" class="p-3 rounded-xl outline-none">
             </div>
-
-            <div style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.3rem;">
-                <label for="noise-sensitivity" style="font-size: 0.85rem; color: var(--text-color); opacity: 0.8;">Room
-                    Environment:</label>
-                <select id="noise-sensitivity"
-                    style="background: rgba(0,0,0,0.2); color: white; border: 1px solid var(--glass-border); padding: 0.4rem; border-radius: 6px; font-family: inherit; width: 100%; outline: none;">
-                    <option value="quiet">Quiet (e.g., Study Hall)</option>
-                    <option value="medium" selected>Medium (e.g., Group Work)</option>
-                    <option value="loud">Loud (e.g., Cafeteria)</option>
-                </select>
-            </div>
-
-            <div class="noise-meter-container">
-                <div id="noise-bar"></div>
-            </div>
-            <small style="color: var(--text-color); opacity: 0.7; font-size: 0.8rem;">Automatically calibrates for 2
-                seconds when turned on.</small>
-        </div>
-
-        <div class="panel-section">
-            <h4><i data-lucide="headphones"></i> 24/7 Lo-Fi Radio</h4>
-
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-                <button class="primary-btn icon-btn" id="audio-play-btn" style="flex-shrink: 0; padding: 0.5rem 1rem;" title="Play/Pause">
-                    <i data-lucide="play"></i>
+            <div class="flex items-end">
+                <button onclick="addData()" class="btn-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> ADD
                 </button>
-                <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 0.2rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-color); opacity: 0.8;">Live Chillhop Stream</span>
-                    <input type="range" id="audio-volume" min="0" max="1" step="0.01" value="0.5" style="accent-color: var(--accent-color); cursor: pointer;" title="Volume">
-                </div>
             </div>
         </div>
 
-        <div class="panel-section">
-            <h4><i data-lucide="edit-3"></i> Text Elements/Boxes</h4>
-            <div class="editor-toolbar">
-                <button class="icon-btn" onclick="formatText('justifyLeft')" title="Left"><i data-lucide="align-left"></i></button>
-                <button class="icon-btn" onclick="formatText('justifyCenter')" title="Center"><i data-lucide="align-center"></i></button>
-                <button class="icon-btn" onclick="formatText('justifyRight')" title="Right"><i data-lucide="align-right"></i></button>
-                <button class="icon-btn" onclick="formatText('bold')" title="Bold"><i data-lucide="bold"></i></button>
-                <button class="icon-btn" onclick="formatText('italic')" title="Italic"><i data-lucide="italic"></i></button>
-                <button class="icon-btn" onclick="formatText('underline')" title="Underline"><i data-lucide="underline"></i></button>
-                <button class="icon-btn" onclick="formatText('insertUnorderedList')" title="Bullet List"><i data-lucide="list"></i></button>
-                <button class="icon-btn" onclick="formatText('insertOrderedList')" title="Number List"><i data-lucide="list-ordered"></i></button>
-
-                <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.25rem;">
-                    <select id="font-select" onchange="changeFont(this.value)" style="flex: 1;">
-                        <option value="'Segoe UI', sans-serif">Standard</option>
-                        <option value="'Fredoka', sans-serif">Playful</option>
-                        <option value="'Bangers', cursive">Bold</option>
-                        <option value="'Pacifico', cursive">Cursive</option>
-                        <option value="'Caveat', cursive">Handwritten</option>
-                        <option value="'Righteous', cursive">Modern</option>
-                    </select>
-
-                    <div
-                        style="display: flex; align-items: center; background: var(--bg-color); border: 1px solid var(--glass-border); border-radius: 4px; padding: 0.1rem;">
-                        <button class="icon-btn" id="font-decrease" style="padding: 0.2rem;" title="Smaller"><i data-lucide="minus"></i></button>
-                        <span id="font-size-display" style="width: 45px; text-align: center; color: var(--text-color); font-size: 0.9rem; font-family: inherit;">40px</span>
-                        <button class="icon-btn" id="font-increase" style="padding: 0.2rem;" title="Larger"><i data-lucide="plus"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="do-now-editor" contenteditable="true" class="rich-editor"
-                placeholder="Type your focus task here..."></div>
-            <button class="primary-btn" id="add-note-btn" style="width: 100%; margin-top: 10px;">Add Text Box</button>
-        </div>
-
-        <div class="utility-group">
-            <h3>Images <i data-lucide="image"></i></h3>
-            <p style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.5rem;">Add floating images or set a background.
-            </p>
-
-            <input type="text" id="image-url-input" class="styled-image-input" placeholder="Paste image URL or Ctrl+V...">
-
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                <input type="file" id="image-upload-input" accept="image/*" style="display: none;">
-                <button class="secondary-btn" id="upload-image-btn" style="flex: 1;">Upload <i data-lucide="upload"></i></button>
-                <button class="primary-btn" id="add-image-btn" style="flex: 1;">Add Image <i data-lucide="plus"></i></button>
-            </div>
-
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                <button class="secondary-btn" id="set-bg-panel-btn" style="flex: 1;">Set as BG <i data-lucide="wallpaper"></i></button>
-                <button class="secondary-btn" id="reset-bg-btn" style="flex: 1;">Reset BG <i data-lucide="rotate-ccw"></i></button>
-            </div>
-
-            <p style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.5rem; text-align: center;">Tip: Right-click any
-                floating image to set it as your background!</p>
-        </div>
-
-        <div class="panel-section hidden" id="scene-section">
-            <h4><i data-lucide="image"></i> Scene</h4>
-            <div class="scene-buttons">
-                <button class="primary-btn scene-btn"
-                    data-src="https://www.w3schools.com/html/mov_bbb.mp4">Bunny</button>
-                <button class="primary-btn scene-btn" data-src="videos/winter.mp4">Winter</button>
-                <button class="primary-btn scene-btn" data-src="videos/sky.mp4">Sky</button>
-                <button class="primary-btn scene-btn" data-src="videos/lake.mp4">Lake</button>
-                <button class="primary-btn scene-btn" data-src="videos/autumn.mp4">Autumn</button>
-            </div>
-        </div>
-
-        <div class="panel-section hidden" id="gradient-section">
-            <h4><i data-lucide="palette"></i> Gradient Theme</h4>
-            <div class="scene-buttons">
-                <button class="primary-btn" onclick="setGradient('warm')">Warm</button>
-                <button class="primary-btn" onclick="setGradient('cool')">Cool</button>
-                <button class="primary-btn" onclick="setGradient('rainbow')">Rainbow</button>
-                <button class="primary-btn" onclick="setGradient('bw')">B & W</button>
-            </div>
-            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center;">
-                <input type="color" id="color1" value="#8b5cf6" class="color-picker">
-                <input type="color" id="color2" value="#ec4899" class="color-picker">
-                <button class="primary-btn" onclick="setCustomGradient()">Apply Custom</button>
-            </div>
-        </div>
-
-        <div class="utility-section">
-            <h3><i data-lucide="save"></i> Layout Manager</h3>
-            <br>
-
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-                <select id="layout-slot-select" class="secondary-btn" style="flex-grow: 1;">
-            <option value="1">Untitled 1</option>
-            <option value="2">Untitled 2</option>
-            <option value="3">Untitled 3</option>
-            <option value="4">Untitled 4</option>
-            <option value="5">Untitled 5</option>
-        </select>
-                <button id="rename-slot-btn" class="secondary-btn" title="Rename Slot"><i data-lucide="edit-2"></i></button>
-                <button id="save-layout-btn" class="primary-btn">Save</button>
-                <button id="load-layout-btn" class="primary-btn">Load</button>
-            </div>
-
-            <div style="display: flex; gap: 0.5rem;">
-                <button id="export-layout-btn" class="secondary-btn" style="flex: 1;">Download</button>
-                <button id="import-layout-btn" class="secondary-btn" style="flex: 1;">Upload</button>
-                <input type="file" id="layout-file-input" accept=".json" class="hidden">
-            </div>
-        </div>
-
-    </aside>
-
-    <div id="floating-ui-container">
-        <div id="timer-display" class="glass-box hidden">
-            <span id="timer-text">00:00</span>
-        </div>
-
-        <div id="decibel-display" class="glass-box hidden">
-            <i data-lucide="smile" id="noise-smiley" style="color: #22c55e;"></i>
-            <span id="noise-level-text">Quiet</span>
+        <div class="flex gap-2 justify-center border-t border-white/5 pt-6">
+            <button onclick="updateChart(7)" class="filter-btn bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg text-sm font-medium">Week</button>
+            <button onclick="updateChart(14)" class="filter-btn bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg text-sm font-medium">2 Weeks</button>
+            <button onclick="updateChart(30)" class="filter-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Month</button>
+            <button onclick="updateChart(365)" class="filter-btn bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg text-sm font-medium">Year</button>
+            <button onclick="clearData()" class="ml-auto text-gray-500 hover:text-red-400 transition-colors">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
         </div>
     </div>
 
-    <div id="spotlight-overlay" class="hidden"></div>
-
-    <div id="spotlight-tooltip" class="hidden">
-        <h3 id="spotlight-title">Welcome!</h3>
-        <p id="spotlight-text">Let's take a quick tour.</p>
-
-        <div class="tutorial-controls">
-            <button class="secondary-btn" id="spotlight-skip">Skip Tour</button>
-            <div class="tutorial-dots" id="spotlight-dots"></div>
-            <button class="primary-btn" id="spotlight-next">Next <i data-lucide="arrow-right"></i></button>
-        </div>
+    <div class="glass-card p-6 w-full max-w-3xl h-[450px]">
+        <canvas id="aleksChart"></canvas>
     </div>
 
-    <div id="note-context-menu" class="context-menu">
-        <button id="set-bg-context-btn" style="display: none;">Set as Background <i data-lucide="image"></i></button>
-        <button id="delete-note-btn">Delete <i data-lucide="trash-2"></i></button>
-    </div>
+    <script>
+        /** BACKGROUND ANIMATION **/
+        const canvas = document.getElementById('bg-canvas');
+        const bgCtx = canvas.getContext('2d');
+        let particles = [];
 
-    <script src="script.js"></script>
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                bgCtx.fillStyle = 'rgba(59, 130, 246, 0.5)';
+                bgCtx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 80; i++) particles.push(new Particle());
+        }
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                for (let j = index + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 120) {
+                        bgCtx.beginPath();
+                        bgCtx.strokeStyle = `rgba(59, 130, 246, ${1 - dist / 120})`;
+                        bgCtx.lineWidth = 0.5;
+                        bgCtx.moveTo(p.x, p.y);
+                        bgCtx.lineTo(p2.x, p2.y);
+                        bgCtx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animateBg);
+        }
+        initParticles();
+        animateBg();
+
+        /** TRACKER LOGIC **/
+        let myChart = null;
+        lucide.createIcons();
+        document.getElementById('dateInput').valueAsDate = new Date();
+
+        function getStoredData() {
+            const data = localStorage.getItem('aleks_logs');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function addData() {
+            const date = document.getElementById('dateInput').value;
+            const time = parseInt(document.getElementById('timeInput').value);
+            if (!date || isNaN(time)) return;
+
+            const logs = getStoredData();
+            logs.push({ x: date, y: time });
+            logs.sort((a, b) => new Date(a.x) - new Date(b.x));
+            localStorage.setItem('aleks_logs', JSON.stringify(logs));
+            document.getElementById('timeInput').value = '';
+            updateChart();
+        }
+
+        function clearData() {
+            if (confirm("Reset all tracking data?")) {
+                localStorage.removeItem('aleks_logs');
+                updateChart();
+            }
+        }
+
+        function updateChart(days = 30) {
+            const rawData = getStoredData();
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - days);
+            const filteredData = rawData.filter(d => new Date(d.x) >= cutoff);
+
+            // UI Button state
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white/5');
+                if (btn.innerText.toLowerCase().includes(days === 7 ? 'week' : days === 30 ? 'month' : days === 365 ? 'year' : '2 weeks')) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-white/5');
+                }
+            });
+
+            if (myChart) myChart.destroy();
+            const ctx = document.getElementById('aleksChart').getContext('2d');
+            
+            // Create neon gradient for the line
+            const chartGrad = ctx.createLinearGradient(0, 0, 0, 400);
+            chartGrad.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+            chartGrad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Minutes',
+                        data: filteredData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: chartGrad,
+                        borderWidth: 4,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#3b82f6',
+                        pointRadius: 4,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            type: 'time', 
+                            time: { unit: 'day' },
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#fff',
+                            bodyColor: '#3b82f6',
+                            padding: 12,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+        }
+        updateChart();
+    </script>
 </body>
-
 </html>
